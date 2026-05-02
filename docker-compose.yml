@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./auth-service/.env.local
+
+  posts-service:
+    build: ./posts-service
+    container_name: posts-service
+    ports:
+      - "8002:8002"
+    env_file:
+      - ./posts-service/.env.local
+
+  frontend:
+    build: .
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8002
+    depends_on:
+      - auth-service
+      - posts-service

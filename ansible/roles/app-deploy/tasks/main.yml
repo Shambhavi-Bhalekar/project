@@ -1,0 +1,44 @@
+---
+- name: Create k8s manifest directory
+  file:
+    path: /opt/k8s-manifests
+    state: directory
+    mode: '0755'
+
+- name: Copy kubernetes manifests
+  copy:
+    src: "{{ item }}"
+    dest: "/opt/k8s-manifests/"
+  with_fileglob:
+    - "../../../../k8s/*.yaml"
+
+- name: Apply namespace
+  k8s:
+    state: present
+    src: /opt/k8s-manifests/namespace.yaml
+
+- name: Apply secrets
+  k8s:
+    state: present
+    src: /opt/k8s-manifests/secrets.yaml
+
+- name: Apply deployments and services
+  k8s:
+    state: present
+    src: "{{ item }}"
+  with_items:
+    - /opt/k8s-manifests/auth.yaml
+    - /opt/k8s-manifests/posts.yaml
+    - /opt/k8s-manifests/frontend.yaml
+
+- name: Apply ingress
+  k8s:
+    state: present
+    src: /opt/k8s-manifests/ingress.yaml
+
+- name: Wait for deployments to rollout
+  command: "kubectl rollout status deployment/{{ item }} -n app --timeout=120s"
+  with_items:
+    - auth-service
+    - posts-service
+    - frontend

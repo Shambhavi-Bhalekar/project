@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+supabase
+python-dotenv==1.0.0
+pydantic>=2.5.2
+PyJWT==2.8.0
+python-multipart==0.0.6
