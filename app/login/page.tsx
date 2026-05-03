@@ -39,7 +39,7 @@ export default function LoginPage() {
       authService.setToken(res.access_token, res.user.email);
       toast.success('Welcome back! 🎉');
       router.push('/blog');
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(getErrorMessage(err, 'Invalid email or password'));
     } finally {
       setIsLoading(false);
