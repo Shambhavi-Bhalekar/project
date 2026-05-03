@@ -98,7 +98,7 @@ pipeline {
 stage('Create K8s Secret') {
   steps {
     withCredentials([
-      file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG'),
+      file(credentialsId: 'KUBECONFIG', variable: 'KUBECONFIG'),
       string(credentialsId: 'SUPABASE_URL', variable: 'SUPABASE_URL'),
       string(credentialsId: 'SUPABASE_KEY', variable: 'SUPABASE_KEY'),
       string(credentialsId: 'JWT_SECRET', variable: 'JWT_SECRET')
