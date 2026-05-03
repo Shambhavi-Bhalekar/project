@@ -95,25 +95,25 @@ pipeline {
                 """
             }
         }
-        stage('Create K8s Secret') {
-    steps {
-        withCredentials([
-            string(credentialsId: 'SUPABASE_URL', variable: 'SUPABASE_URL'),
-            string(credentialsId: 'SUPABASE_KEY', variable: 'SUPABASE_KEY'),
-            string(credentialsId: 'JWT_SECRET', variable: 'JWT_SECRET')
-        ]) {
-            sh '''
-            kubectl create namespace app --dry-run=client -o yaml | kubectl apply -f -
+stage('Create K8s Secret') {
+  steps {
+    withCredentials([
+      file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')
+    ]) {
+      sh '''
+        export KUBECONFIG=$KUBECONFIG
 
-            kubectl create secret generic app-secrets \
-              --namespace app \
-              --from-literal=SUPABASE_URL=$SUPABASE_URL \
-              --from-literal=SUPABASE_KEY=$SUPABASE_KEY \
-              --from-literal=SUPABASE_JWT_SECRET=$JWT_SECRET \
-              --dry-run=client -o yaml | kubectl apply -f -
-            '''
-        }
+        kubectl create namespace app --dry-run=client -o yaml | kubectl apply -f -
+
+        kubectl create secret generic app-secrets \
+          --from-literal=SUPABASE_URL=$SUPABASE_URL \
+          --from-literal=SUPABASE_KEY=$SUPABASE_KEY \
+          --from-literal=JWT_SECRET=$JWT_SECRET \
+          -n app \
+          --dry-run=client -o yaml | kubectl apply -f -
+      '''
     }
+  }
 }
         stage('Deploy via Ansible') {
             steps {
