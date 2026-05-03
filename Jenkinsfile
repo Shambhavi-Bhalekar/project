@@ -7,8 +7,8 @@ pipeline {
         ECR_AUTH_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/auth-service"
         ECR_POSTS_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/posts-service"
         ECR_FRONTEND_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/frontend"
-        SONAR_HOST_URL = credentials('SONAR_HOST_URL')
-        SONAR_TOKEN = credentials('sonar-token')
+        // SONAR_HOST_URL = credentials('SONAR_HOST_URL')
+        // SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
