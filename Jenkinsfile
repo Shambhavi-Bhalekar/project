@@ -8,7 +8,7 @@ pipeline {
         ECR_POSTS_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/posts-service"
         ECR_FRONTEND_REPO = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/frontend"
         SONAR_HOST_URL = credentials('SONAR_HOST_URL')
-        SONAR_TOKEN = credentials('SONAR_TOKEN')
+        SONAR_TOKEN = credentials('sonar-token')
     }
 
     stages {
@@ -47,7 +47,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('Sonarqube') {
                     sh 'sonar-scanner -Dsonar.projectKey=blog-app -Dsonar.sources=.'
                 }
             }
