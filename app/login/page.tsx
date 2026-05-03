@@ -36,7 +36,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const res = await authService.login({ email: formData.email, password: formData.password });
-      authService.setToken(res.access_token, res.user.email);
+      authService.setToken(res.access_token, res.user.email,res.user.id);
       toast.success('Welcome back! 🎉');
       router.push('/blog');
     } catch (err: unknown) {
