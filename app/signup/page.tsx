@@ -50,7 +50,7 @@ export default function SignupPage() {
         full_name: formData.full_name,
       });
       if (res.access_token) {
-        authService.setToken(res.access_token, res.user.email);
+        authService.setToken(res.access_token, res.user.email,res.user.id);
         toast.success('Account created! Welcome 🎉');
         router.push('/blog');
       } else {
