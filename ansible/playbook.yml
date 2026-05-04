@@ -19,53 +19,83 @@
     supabase_key: "{{ lookup('env', 'SUPABASE_KEY') }}"
     jwt_secret: "{{ lookup('env', 'JWT_SECRET') }}"
     k8s_master_ip: "{{ lookup('env', 'K8S_MASTER_IP') }}"
+
   tasks:
+
+    # ✅ Ensure kubeconfig exists
+    - name: Set kubeconfig for kubectl
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    # ✅ Create directory
     - name: Create manifest directory on master
       file:
         path: /opt/k8s-manifests
         state: directory
         mode: '0755'
 
+    # ✅ Copy manifests
     - name: Copy all k8s manifests to master
       copy:
         src: "k8s/"
         dest: "/opt/k8s-manifests/"
 
-    - name: Inject real values into secrets.yaml
+    # ✅ Replace secrets
+    - name: Inject JWT secret
       replace:
         path: /opt/k8s-manifests/secrets.yaml
         regexp: "REPLACE_WITH_YOUR_JWT_SECRET"
         replace: "{{ jwt_secret }}"
 
-    - name: Inject master IP into ingress.yaml
+    - name: Inject master IP into ingress
       replace:
         path: /opt/k8s-manifests/ingress.yaml
         regexp: "YOUR_K8S_MASTER_IP"
         replace: "{{ k8s_master_ip }}"
 
+    # ✅ Apply resources (with kubeconfig)
     - name: Apply namespace
       command: kubectl apply -f /opt/k8s-manifests/namespace.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
     - name: Apply secrets
       command: kubectl apply -f /opt/k8s-manifests/secrets.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
     - name: Apply auth deployment
       command: kubectl apply -f /opt/k8s-manifests/auth.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
     - name: Apply posts deployment
       command: kubectl apply -f /opt/k8s-manifests/posts.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
     - name: Apply frontend deployment
       command: kubectl apply -f /opt/k8s-manifests/frontend.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
     - name: Apply ingress
       command: kubectl apply -f /opt/k8s-manifests/ingress.yaml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
+    # ✅ Wait for rollout
     - name: Wait for auth-service rollout
       command: kubectl rollout status deployment/auth-service -n app --timeout=120s
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
     - name: Wait for posts-service rollout
       command: kubectl rollout status deployment/posts-service -n app --timeout=120s
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
 
     - name: Wait for frontend rollout
       command: kubectl rollout status deployment/frontend -n app --timeout=120s
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
