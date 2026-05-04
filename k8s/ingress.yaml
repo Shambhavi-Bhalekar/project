@@ -6,14 +6,12 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/use-regex: "true"
-    # Strip /api/auth prefix before forwarding to auth-service
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
-    - host: 3.145.139.230   # k8s-master EC2 public IP
-      http:
+    - http:
         paths:
-          # Auth service — /api/auth/signup → auth-service /auth/signup
+          # Auth service
           - path: /api/auth(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
@@ -21,7 +19,8 @@ spec:
                 name: auth-service
                 port:
                   number: 8001
-          # Posts service — /api/posts/ → posts-service /posts/
+
+          # Posts service
           - path: /api/posts(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
@@ -29,7 +28,8 @@ spec:
                 name: posts-service
                 port:
                   number: 8002
-          # Frontend — everything else
+
+          # Frontend
           - path: /()(.*)
             pathType: ImplementationSpecific
             backend:
