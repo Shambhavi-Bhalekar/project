@@ -23,9 +23,9 @@
   tasks:
 
     # ✅ Ensure kubeconfig exists
-    - name: Set kubeconfig for kubectl
-      environment:
-        KUBECONFIG: /etc/kubernetes/admin.conf
+    # - name: Set kubeconfig for kubectl
+    #   environment:
+    #     KUBECONFIG: /etc/kubernetes/admin.conf
 
     # ✅ Create directory
     - name: Create manifest directory on master
