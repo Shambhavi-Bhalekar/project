@@ -122,26 +122,21 @@ stage('Create K8s Secret') {
   }
 }
         stage('Deploy via Ansible') {
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(credentialsId: 'EC2_SSH_KEY', keyFileVariable: 'SSH_KEY'),
-                    string(credentialsId: 'SUPABASE_URL',   variable: 'SUPABASE_URL'),
-                    string(credentialsId: 'SUPABASE_KEY',   variable: 'SUPABASE_KEY'),
-                    string(credentialsId: 'JWT_SECRET',      variable: 'JWT_SECRET'),
-                    string(credentialsId: 'K8S_MASTER_IP',  variable: 'K8S_MASTER_IP')
-                ]) {
-                    sh '''
-                    export ANSIBLE_HOST_KEY_CHECKING=False
-                    export SUPABASE_URL=$SUPABASE_URL
-                    export SUPABASE_KEY=$SUPABASE_KEY
-                    export JWT_SECRET=$JWT_SECRET
-                    export K8S_MASTER_IP=$K8S_MASTER_IP
-                    ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
-                        --private-key $SSH_KEY \
-                        -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
-                    '''
-                }
-            }
+    steps {
+        withCredentials([
+            string(credentialsId: 'SUPABASE_URL', variable: 'SUPABASE_URL'),
+            string(credentialsId: 'SUPABASE_KEY', variable: 'SUPABASE_KEY'),
+            string(credentialsId: 'JWT_SECRET', variable: 'JWT_SECRET'),
+            string(credentialsId: 'K8S_MASTER_IP', variable: 'K8S_MASTER_IP')
+        ]) {
+            sh '''
+            export ANSIBLE_HOST_KEY_CHECKING=False
+
+            ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
+              -e "ansible_ssh_common_args='-o StrictHostKeyChecking=no'"
+            '''
         }
+    }
+}
     }
 }
