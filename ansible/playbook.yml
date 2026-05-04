@@ -14,8 +14,6 @@
 - name: Deploy application to master
   hosts: masters
   become: yes
-  vars:
-    k8s_master_ip: "{{ lookup('env', 'K8S_MASTER_IP') }}"
 
   tasks:
 
@@ -29,12 +27,6 @@
       copy:
         src: "../k8s/"
         dest: "/opt/k8s-manifests/"
-
-    - name: Inject master IP into ingress
-      replace:
-        path: /opt/k8s-manifests/ingress.yaml
-        regexp: "YOUR_K8S_MASTER_IP"
-        replace: "{{ k8s_master_ip }}"
 
     - name: Apply namespace
       command: kubectl apply -f /opt/k8s-manifests/namespace.yaml
