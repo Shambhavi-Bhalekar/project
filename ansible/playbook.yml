@@ -1,76 +1,67 @@
 ---
-
-* name: Setup Docker on all nodes
+- name: Setup Docker on all nodes
   hosts: k8s
   become: yes
   roles:
+    - docker-setup
 
-  * docker-setup
-
-* name: Setup Kubernetes tooling on all nodes
+- name: Setup Kubernetes tooling on all nodes
   hosts: k8s
   become: yes
   roles:
+    - k8s-setup
 
-  * k8s-setup
-
-* name: Deploy application to master
+- name: Deploy application to master
   hosts: masters
   become: yes
 
   vars:
-  kubeconfig_path: /etc/kubernetes/admin.conf
+    kubeconfig_path: /etc/kubernetes/admin.conf
 
   tasks:
 
-  * name: Create manifest directory on master
-    file:
-    path: /opt/k8s-manifests
-    state: directory
-    mode: '0755'
+    - name: Create manifest directory on master
+      file:
+        path: /opt/k8s-manifests
+        state: directory
+        mode: '0755'
 
-  * name: Copy all k8s manifests to master
-    copy:
-    src: "../k8s/"
-    dest: "/opt/k8s-manifests/"
+    - name: Copy all k8s manifests to master
+      copy:
+        src: "../k8s/"
+        dest: "/opt/k8s-manifests/"
 
-  # ✅ Apply namespace
+    - name: Apply namespace
+      command: kubectl apply -f /opt/k8s-manifests/namespace.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-  * name: Apply namespace
-    command: kubectl apply -f /opt/k8s-manifests/namespace.yaml
-    environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
+    - name: Apply auth deployment
+      command: kubectl apply -f /opt/k8s-manifests/auth.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-  # ✅ Apply deployments
+    - name: Apply posts deployment
+      command: kubectl apply -f /opt/k8s-manifests/posts.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-  * name: Apply auth deployment
-    command: kubectl apply -f /opt/k8s-manifests/auth.yaml
-    environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
+    - name: Apply frontend deployment
+      command: kubectl apply -f /opt/k8s-manifests/frontend.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-  * name: Apply posts deployment
-    command: kubectl apply -f /opt/k8s-manifests/posts.yaml
-    environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
+    - name: Wait for auth-service rollout
+      command: kubectl rollout status deployment/auth-service -n app --timeout=180s
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-  * name: Apply frontend deployment
-    command: kubectl apply -f /opt/k8s-manifests/frontend.yaml
-    environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
+    - name: Wait for posts-service rollout
+      command: kubectl rollout status deployment/posts-service -n app --timeout=180s
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-  # ✅ Rollout checks (ensures stability)
-
-  * name: Wait for auth-service rollout
-    command: kubectl rollout status deployment/auth-service -n app --timeout=180s
-    environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
-
-  * name: Wait for posts-service rollout
-    command: kubectl rollout status deployment/posts-service -n app --timeout=180s
-    environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
-
-  * name: Wait for frontend rollout
-    command: kubectl rollout status deployment/frontend -n app --timeout=180s
-    environment:
-    KUBECONFIG: "{{ kubeconfig_path }}"
+    - name: Wait for frontend rollout
+      command: kubectl rollout status deployment/frontend -n app --timeout=180s
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
