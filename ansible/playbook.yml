@@ -37,7 +37,7 @@
     # ✅ Copy manifests
     - name: Copy all k8s manifests to master
       copy:
-        src: "k8s/"
+        src: "../k8s/"
         dest: "/opt/k8s-manifests/"
 
     # ✅ Replace secrets
