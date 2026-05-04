@@ -1,10 +1,7 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
-// Posts Service → port 8002 locally, /api/posts in production (via Ingress)
-const POSTS_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002';
-
-// Auth Service → port 8001 locally, /api/auth in production (via Ingress)
-const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:8001';
+// ✅ Use ONE base URL for both (via ingress)
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 // ─── Shared interceptor factory ───────────────────────────────────────────────
 function attachInterceptors(instance: AxiosInstance) {
@@ -17,7 +14,6 @@ function attachInterceptors(instance: AxiosInstance) {
       (config.headers as any).Authorization = `Bearer ${token}`;
     }
 
-    // Let axios set multipart boundary automatically
     if (config.data instanceof FormData) {
       delete (config.headers as any)['Content-Type'];
     }
@@ -28,14 +24,12 @@ function attachInterceptors(instance: AxiosInstance) {
   instance.interceptors.response.use(
     (res) => res,
     (error: AxiosError<any>) => {
-      if (error.response) {
-        if (error.response.status === 401) {
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user_email');
-            localStorage.removeItem('user_id');
-            window.location.href = '/login';
-          }
+      if (error.response?.status === 401) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('user_email');
+          localStorage.removeItem('user_id');
+          window.location.href = '/login';
         }
       }
       return Promise.reject(error);
@@ -43,18 +37,17 @@ function attachInterceptors(instance: AxiosInstance) {
   );
 }
 
-// ─── Posts API client ─────────────────────────────────────────────────────────
+// ✅ Posts API
 export const api: AxiosInstance = axios.create({
-  baseURL: POSTS_URL,
-  withCredentials: false,
+  baseURL: `${BASE_URL}/posts`,
 });
-attachInterceptors(api);
 
-// ─── Auth API client ──────────────────────────────────────────────────────────
+// ✅ Auth API
 export const authApi: AxiosInstance = axios.create({
-  baseURL: AUTH_URL,
-  withCredentials: false,
+  baseURL: `${BASE_URL}/auth`,
 });
+
+attachInterceptors(api);
 attachInterceptors(authApi);
 
 export default api;
