@@ -4,13 +4,16 @@ metadata:
   name: app-ingress
   namespace: app
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
+
 spec:
+  ingressClassName: nginx
+
   rules:
     - http:
         paths:
+
           # Auth service
           - path: /api/auth(/|$)(.*)
             pathType: ImplementationSpecific
@@ -29,8 +32,8 @@ spec:
                 port:
                   number: 8002
 
-          # Frontend
-          - path: /()(.*)
+          # Frontend (catch-all)
+          - path: /(.*)
             pathType: ImplementationSpecific
             backend:
               service:
