@@ -22,10 +22,13 @@ pipeline {
             parallel {
                 stage('Auth Service Tests') {
                     steps {
-                        dir('auth-service') {
+                       dir('auth-service') {
                             sh '''
-                            pip3 install -r requirements.txt
-                            pip3 install pytest httpx
+                            python3 -m venv venv
+                            . venv/bin/activate
+                            pip install --upgrade pip
+                            pip install -r requirements.txt
+                            pip install pytest httpx
                             # pytest
                             '''
                         }
@@ -35,8 +38,11 @@ pipeline {
                     steps {
                         dir('posts-service') {
                             sh '''
-                            pip3 install -r requirements.txt
-                            pip3 install pytest httpx
+                            python3 -m venv venv
+                            . venv/bin/activate
+                            pip install --upgrade pip
+                            pip install -r requirements.txt
+                            pip install pytest httpx
                             # pytest
                             '''
                         }
@@ -95,32 +101,32 @@ pipeline {
                 """
             }
         }
-stage('Create K8s Secret') {
-  steps {
-    withCredentials([
-      file(credentialsId: 'KUBECONFIG', variable: 'KUBECONFIG'),
-      string(credentialsId: 'SUPABASE_URL', variable: 'SUPABASE_URL'),
-      string(credentialsId: 'SUPABASE_KEY', variable: 'SUPABASE_KEY'),
-      string(credentialsId: 'JWT_SECRET', variable: 'JWT_SECRET')
-    ]) {
-      sh '''
-        export KUBECONFIG=$KUBECONFIG
-
-        echo "Checking cluster connection..."
-        kubectl get nodes
-
-        kubectl create namespace app --dry-run=client -o yaml | kubectl apply -f -
-
-        kubectl create secret generic app-secrets \
-          --from-literal=SUPABASE_URL=$SUPABASE_URL \
-          --from-literal=SUPABASE_KEY=$SUPABASE_KEY \
-          --from-literal=JWT_SECRET=$JWT_SECRET \
-          -n app \
-          --dry-run=client -o yaml | kubectl apply -f -
-      '''
-    }
-  }
-}
+        stage('Create K8s Secret') {
+          steps {
+            withCredentials([
+              file(credentialsId: 'KUBECONFIG', variable: 'KUBECONFIG'),
+              string(credentialsId: 'SUPABASE_URL', variable: 'SUPABASE_URL'),
+              string(credentialsId: 'SUPABASE_KEY', variable: 'SUPABASE_KEY'),
+              string(credentialsId: 'JWT_SECRET', variable: 'JWT_SECRET')
+            ]) {
+              sh '''
+                export KUBECONFIG=$KUBECONFIG
+        
+                echo "Checking cluster connection..."
+                kubectl get nodes
+        
+                kubectl create namespace app --dry-run=client -o yaml | kubectl apply -f -
+        
+                kubectl create secret generic app-secrets \
+                  --from-literal=SUPABASE_URL=$SUPABASE_URL \
+                  --from-literal=SUPABASE_KEY=$SUPABASE_KEY \
+                  --from-literal=JWT_SECRET=$JWT_SECRET \
+                  -n app \
+                  --dry-run=client -o yaml | kubectl apply -f -
+              '''
+            }
+          }
+        }
         stage('Deploy via Ansible') {
     steps {
         withCredentials([
