@@ -3,5 +3,5 @@ uvicorn
 supabase==2.29.0
 python-dotenv==1.0.0
 pydantic>=2.5.2
-PyJWT==2.8.0
+PyJWT>=2.10.1
 python-multipart==0.0.6
