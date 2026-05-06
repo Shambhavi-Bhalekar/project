@@ -407,28 +407,6 @@ const response = await fetch(`http://localhost:8000/posts/${postId}`, {
 
 ---
 
-## 🐛 Troubleshooting
-
-### CORS Errors
-- Ensure `FRONTEND_URL` in backend `.env` matches your frontend URL
-- Check FastAPI CORS configuration in `main.py`
-
-### Authentication Errors
-- Verify JWT_SECRET matches between backend and Supabase
-- Check that token is being sent correctly in Authorization header
-- Clear localStorage and try logging in again
-
-### Image Upload Errors
-- Ensure `blog-images` bucket exists in Supabase Storage
-- Check bucket permissions are public
-- Verify file size is under Supabase limits
-
-### Database Errors
-- Check RLS policies are correctly configured
-- Verify user_id is being set correctly when creating posts
-- Ensure auth.users table exists in Supabase
-
----
 
 ## 📚 Resources
 
@@ -446,16 +424,3 @@ This project is open source and available under the MIT License.
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
-
----
-
-## 📧 Support
-
-For support, please open an issue in the GitHub repository or contact the development team.
-
----
-
-**Built with ❤️ by the BlogHub Team**
