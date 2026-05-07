@@ -126,7 +126,7 @@ function BlogContent() {
                 className="text-3xl sm:text-4xl font-bold mb-1"
                 style={{ color: 'var(--text-primary)', fontFamily: 'Sora, sans-serif' }}
               >
-                Blog <span className="gradient-text">Feed</span>
+                Blog <span className="gradient-text"></span>
               </h1>
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                 {posts.length} {posts.length === 1 ? 'story' : 'stories'} from the community
