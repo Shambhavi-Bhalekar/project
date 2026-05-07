@@ -101,7 +101,7 @@ export default function LoginPage() {
                 <PenLine size={20} className="text-white" />
               </div>
               <span className="text-xl font-bold" style={{ fontFamily: 'Sora, sans-serif' }}>
-                <span className="gradient-text">Blog_test</span>
+                <span className="gradient-text">Blog</span>
                 <span style={{ color: 'var(--text-primary)' }}>Hub</span>
               </span>
             </Link>
